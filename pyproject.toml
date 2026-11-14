@@ -1,0 +1,75 @@
+[project]
+name = "sphinx-exec-to-file"
+version = "0.0.1"
+description = "Sphinx extension to include images and data files created by commands or code"
+keywords = ["sphinx", "sphinx-extension", "generation"]
+authors = [
+    {name="Gatien Bouyer"},
+]
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = [
+    "sphinx",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.",
+    "Development Status :: 3 - Alpha",
+    "Framework :: Sphinx",
+    "Framework :: Sphinx :: Extension",
+    "Topic :: Documentation :: Sphinx",
+    "Topic :: Software Development :: Documentation",
+]
+
+[project.urls]
+"Source" = "https://github.com/GatienBouyer/sphinx-exec-to-file"
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "types-docutils",
+    "isort",
+    "autopep8",
+    "pylint",
+    "pytest",
+    "coverage",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.isort]
+force_single_line = true
+skip_gitignore = true
+quiet = true  # to remove warning about skipped files
+
+[tool.autopep8]
+max_line_length = 100
+recursive = true
+exclude = ".*"  # exclude hidden files
+
+[tool.mypy]
+strict = true
+packages = ["sphinxcontrib.exec_to_file", "test"]
+
+[tool.pylint]
+recursive = true
+ignore-patterns = ["^\\.", "conf.py"]  # exclude hidden files
+enable = ["useless-suppression"]
+disable = [
+    "too-many-arguments",  # too strict to be used
+    "too-many-positional-arguments",  # too strict to be used
+]
+
+[tool.coverage.run]
+branch = true
+command_line = "-m pytest"
+source_pkgs = ["sphinxcontrib.exec_to_file", "test"]
+
+[tool.coverage.report]
+exclude_also = [
+    "raise NotImplementedError",
+]
+fail_under = 100
