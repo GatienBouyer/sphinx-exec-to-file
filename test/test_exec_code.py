@@ -47,6 +47,19 @@ def test_capture_multipe_files(app: SphinxTestApp, ref_path: Path) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-code-show-code",
+)
+def test_show_code(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test to exec a script and show the code."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table-with-code")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-code-lang-default",
 )
 def test_language_default(app: SphinxTestApp, ref_path: Path) -> None:

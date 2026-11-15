@@ -5,24 +5,24 @@ from pathlib import Path
 from docutils.nodes import Node
 from docutils.parsers.rst.directives import flag
 from sphinx.application import Sphinx
-from sphinx.util.docutils import SphinxDirective
+from sphinx.directives.code import CodeBlock
 from sphinx.util.logging import getLogger
 
 logger = getLogger("sphinx.exec-to-file")
 
 
-class ExecCodeDirective(SphinxDirective):
+class ExecCodeDirective(CodeBlock):
     """Define the directive that execute code."""
     name = "code"
 
     has_content = True
     optional_arguments = 1  # the language
     option_spec = {
+        **CodeBlock.option_spec,
         "capture-stdout": str,
         "capture-stderr": str,
         "capture-file": str,
         "hide-code": flag,
-        "language": str,
     }
 
     @classmethod
@@ -97,4 +97,7 @@ class ExecCodeDirective(SphinxDirective):
             if not (cwd / path.name).exists():
                 raise self.warning(f"Command executed but didn't create the file {path.name}:\n"
                                    f"{logged_command}\n")
+
+        if "hide-code" not in self.options:
+            return super().run()
         return []
