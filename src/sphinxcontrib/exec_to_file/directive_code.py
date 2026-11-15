@@ -22,6 +22,7 @@ class ExecCodeDirective(CodeBlock):
         "capture-stdout": str,
         "capture-stderr": str,
         "capture-file": str,
+        "ignore-exit": flag,
         "hide-code": flag,
     }
 
@@ -90,7 +91,7 @@ class ExecCodeDirective(CodeBlock):
         cwd = Path(self.env.srcdir)
         res = subprocess.run(args, cwd=cwd, executable=exe, check=False)
 
-        if res.returncode != 0:  # TODO add option ignore-exit-code
+        if "ignore-exit" not in self.options and res.returncode != 0:
             raise self.warning(f"Command executed by the '{self.name}' directive has failed:\n"
                                f"{logged_command}\n")
         for path in paths_to_create:

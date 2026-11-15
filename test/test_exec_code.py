@@ -110,6 +110,19 @@ def test_script_failure(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-code-script-failure-ignored",
+)
+def test_script_failure_ignore(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test in which the option ignore-exit is used to avoid the warning on the exit code != 0."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-code-file-not-created",
 )
 def test_file_not_created(app: SphinxTestApp) -> None:
