@@ -77,4 +77,18 @@ exec_file_runners = {
 Install necessary tools with `pip install -e .[dev]`.
 
 Run tests with `pytest` or `coverage`. Run code analysis with `autopep8`, `isort`, `mypy` and `pylint`.
-These tools are pre-configured, no options are required to run them.
+These tools are pre-configured, no options are required to run them,
+you just have to give the path to analyse.
+
+You can trigger the run of all these tools with `precommit`:
+
+```sh
+pip install pre-commit && pre-commit install
+```
+
+To build and distribute the package use:
+```sh
+pip install build twine
+python -m build
+twine upload dist/*
+```

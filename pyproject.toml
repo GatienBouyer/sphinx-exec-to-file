@@ -4,7 +4,7 @@ version = "0.0.1"
 description = "Sphinx extension to include images and data files created by commands or code"
 keywords = ["sphinx", "sphinx-extension", "generation"]
 authors = [
-    {name="Gatien Bouyer"},
+    {name="Gatien Bouyer", email="gatien.bouyer.dev+sphinx@gmail.com"},
 ]
 readme = "README.md"
 license = "MIT"
@@ -59,9 +59,14 @@ recursive = true
 ignore-patterns = ["^\\.", "conf.py"]  # exclude hidden files
 enable = ["useless-suppression"]
 disable = [
-    "too-many-arguments",  # too strict to be used
-    "too-many-positional-arguments",  # too strict to be used
+    "too-many-arguments",  # too strict
+    "too-many-positional-arguments",  # too strict
+    "too-few-public-methods",  # too strict to have data classes
 ]
+
+[tool.pytest.ini_options]
+addopts = "--show-capture=stdout"  # hide logs for easier debug of sphinx tests
+testpaths = ["test"]
 
 [tool.coverage.run]
 branch = true

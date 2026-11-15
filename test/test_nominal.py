@@ -13,6 +13,8 @@ from sphinx.testing.util import SphinxTestApp
 def test_nominal(app: SphinxTestApp, ref_path: Path) -> None:
     """Test a default build."""
     app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
     output = app.outdir
     ref = ref_path / "nominal"
     diff = dircmp(output, ref)
