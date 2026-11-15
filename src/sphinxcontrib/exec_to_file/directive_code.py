@@ -45,13 +45,18 @@ class ExecCodeDirective(CodeBlock):
                 f"Content expected for the '{self.name}' directive; {len(self.content)} found"
             )
         command = self.content[0]
-
         args = command.split()
-        # TODO check for missing option values and duplicate file name
-        files_to_create = set(self.options.get("capture-file", "").split("\n"))
-        files_to_create.discard("")
 
-        paths_to_create = {Path(f) for f in files_to_create}
+        paths_to_create: set[Path] = set()
+        for file in self.options.get("capture-file", "").split("\n"):
+            if file.strip() == "":
+                continue
+            path = Path(file)
+            if path in paths_to_create:
+                raise self.warning(f"duplicate file '{file}' in '{self.name}' defined twice "
+                                   f"for the command:\n{command}")
+            paths_to_create.add(path)
+
         remaining_paths = paths_to_create.copy()
         for i, arg in enumerate(args):
             # TODO add option to use other characters
@@ -74,7 +79,7 @@ class ExecCodeDirective(CodeBlock):
         import subprocess
         import sys
         exe_mapping = {
-            "python": sys.executable,
+            "python": sys.executable,  # TODO test it (and make it convenient)
             "sh": None,
         }
         if self.arguments:

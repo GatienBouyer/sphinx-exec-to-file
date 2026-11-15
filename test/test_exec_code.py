@@ -158,3 +158,16 @@ def test_file_not_in_capture(app: SphinxTestApp) -> None:
     msg = ("index.rst:1: WARNING: 'exec:code' does not define the capture of '<data.csv>' "
            "for the command:\nprog.py <data.csv>")
     assert msg in warnings
+
+
+@pytest.mark.sphinx(
+    buildername="text",
+    testroot="exec-code-file-twice-in-capture",
+)
+def test_file_twice_in_capture(app: SphinxTestApp) -> None:
+    """Test in which the code used a file defined twice in the capture option."""
+    app.build()
+    warnings = app.warning.getvalue()
+    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' defined twice "
+           "for the command:\nprog.py <data.csv>")
+    assert msg in warnings
