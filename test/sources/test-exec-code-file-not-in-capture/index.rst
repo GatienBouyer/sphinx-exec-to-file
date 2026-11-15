@@ -1,8 +1,5 @@
-.. exec:code::
-    :capture-file:
-        data.csv
+.. exec:code:: sh
     :hide-code:
-    :language: python
 
     prog.py <data.csv>
 

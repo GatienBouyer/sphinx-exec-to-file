@@ -57,12 +57,16 @@ packages = ["sphinxcontrib.exec_to_file", "test"]
 [tool.pylint]
 recursive = true
 ignore-patterns = ["^\\.", "conf.py"]  # exclude hidden files
+load-plugins=[
+    "pylint.extensions.bad_builtin",
+]
 enable = ["useless-suppression"]
 disable = [
     "too-many-arguments",  # too strict
     "too-many-positional-arguments",  # too strict
     "too-few-public-methods",  # too strict to have data classes
 ]
+bad-functions = ["print"]
 
 [tool.pytest.ini_options]
 addopts = "--show-capture=stdout"  # hide logs for easier debug of sphinx tests
