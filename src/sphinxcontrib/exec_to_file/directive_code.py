@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from docutils.nodes import Node
-from docutils.parsers.rst.directives import flag
+from docutils.parsers.rst import directives
 from sphinx.application import Sphinx
 from sphinx.directives.code import CodeBlock
 from sphinx.util.logging import getLogger
@@ -19,11 +19,11 @@ class ExecCodeDirective(CodeBlock):
     optional_arguments = 1  # the language
     option_spec = {
         **CodeBlock.option_spec,
-        "capture-stdout": str,
-        "capture-stderr": str,
-        "capture-file": str,
-        "ignore-exit": flag,
-        "hide-code": flag,
+        "capture-stdout": directives.unchanged_required,
+        "capture-stderr": directives.unchanged_required,
+        "capture-file": directives.unchanged_required,
+        "ignore-exit": directives.flag,
+        "hide-code": directives.flag,
     }
 
     @classmethod
@@ -53,7 +53,7 @@ class ExecCodeDirective(CodeBlock):
                 continue
             path = Path(file)
             if path in paths_to_create:
-                raise self.warning(f"duplicate file '{file}' in '{self.name}' defined twice "
+                raise self.warning(f"duplicate file '{file}' in '{self.name}' captured twice "
                                    f"for the command:\n{command}")
             paths_to_create.add(path)
 

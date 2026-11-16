@@ -181,6 +181,6 @@ def test_file_twice_in_capture(app: SphinxTestApp) -> None:
     """Test in which the code used a file defined twice in the capture option."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' defined twice "
+    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice "
            "for the command:\nprog.py <data.csv>")
     assert msg in warnings
