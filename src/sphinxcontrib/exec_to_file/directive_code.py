@@ -14,6 +14,17 @@ from sphinx.util.logging import getLogger
 logger = getLogger("sphinx.exec-to-file")
 
 
+def option_positive_float(argument: str) -> float:
+    """
+    Converts the argument into a float.  Raises ValueError for negative,
+    zero, or non-integer values.  (Directive option conversion function.)
+    """
+    value = float(argument)
+    if value <= 0:  # pragma: no cover
+        raise ValueError('negative or zero value; must be positive')
+    return value
+
+
 class ExecCodeDirective(CodeBlock):
     """Define the directive that execute code."""
     name = "code"
@@ -26,6 +37,7 @@ class ExecCodeDirective(CodeBlock):
         "capture-stderr": directives.unchanged_required,
         "capture-file": directives.unchanged_required,
         "ignore-exit": directives.flag,
+        "timeout": option_positive_float,
         "hide-code": directives.flag,
     }
 
@@ -118,11 +130,16 @@ class ExecCodeDirective(CodeBlock):
 
         logged_command = " ".join(args)
         logger.info(f"Command launched: {logged_command}")
-        res = subprocess.run(
-            args, cwd=cwd, executable=exe,
-            stdout=stdout_fd, stderr=stderr_fd,
-            check=False,
-        )
+        timeout = self.options.get("timeout")
+        try:
+            res = subprocess.run(
+                args, cwd=cwd, executable=exe,
+                stdout=stdout_fd, stderr=stderr_fd,
+                check=False, timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            raise self.severe(f"Timeout expired in the '{self.name}' directive "
+                              f"({timeout}s) for the command:\n{command}\n") from None
 
         if "ignore-exit" not in self.options and res.returncode != 0:
             raise self.warning(f"Command executed by the '{self.name}' directive has failed:\n"

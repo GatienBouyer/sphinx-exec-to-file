@@ -250,3 +250,16 @@ def test_file_twice_in_capture_stderr(app: SphinxTestApp) -> None:
     msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice "
            "for the command:\nprog.py <data.csv>")
     assert msg in warnings
+
+
+@pytest.mark.sphinx(
+    buildername="text",
+    testroot="exec-code-timeout",
+)
+def test_timeout(app: SphinxTestApp) -> None:
+    """Test in which the code doesn't finished and reach the defined timeout."""
+    app.build()
+    warnings = app.warning.getvalue()
+    msg = ("index.rst:1: CRITICAL: Timeout expired in the 'exec:code' directive (0.1s) "
+           "for the command:\nlocal_prog.py <data.csv>")
+    assert msg in warnings
