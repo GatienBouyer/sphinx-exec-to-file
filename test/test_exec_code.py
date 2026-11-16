@@ -60,6 +60,46 @@ def test_capture_multipe_files(app: SphinxTestApp, ref_path: Path) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-code-capture-stdout",
+)
+def test_capture_stdout(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test the capture of the stdout of the script called."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
+    testroot="exec-code-capture-stderr",
+)
+def test_capture_stderr(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test the capture of the stderr of the script called."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
+    testroot="exec-code-capture-stds",
+)
+def test_capture_both(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test the capture of the stdout and stderr of the script called,
+    while keeping the text order."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-code-show-code",
 )
 def test_show_code(app: SphinxTestApp, ref_path: Path) -> None:
@@ -178,6 +218,32 @@ def test_file_not_in_capture(app: SphinxTestApp) -> None:
     testroot="exec-code-file-twice-in-capture",
 )
 def test_file_twice_in_capture(app: SphinxTestApp) -> None:
+    """Test in which the code used a file defined twice in the capture option."""
+    app.build()
+    warnings = app.warning.getvalue()
+    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice "
+           "for the command:\nprog.py <data.csv>")
+    assert msg in warnings
+
+
+@pytest.mark.sphinx(
+    buildername="text",
+    testroot="exec-code-file-twice-in-capture-stdout",
+)
+def test_file_twice_in_capture_stdout(app: SphinxTestApp) -> None:
+    """Test in which the code used a file defined twice in the capture option."""
+    app.build()
+    warnings = app.warning.getvalue()
+    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice "
+           "for the command:\nprog.py <data.csv>")
+    assert msg in warnings
+
+
+@pytest.mark.sphinx(
+    buildername="text",
+    testroot="exec-code-file-twice-in-capture-stderr",
+)
+def test_file_twice_in_capture_stderr(app: SphinxTestApp) -> None:
     """Test in which the code used a file defined twice in the capture option."""
     app.build()
     warnings = app.warning.getvalue()

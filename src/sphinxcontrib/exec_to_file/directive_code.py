@@ -1,6 +1,9 @@
 """Define the `.. exec:code::` directive."""
-
+import subprocess
+import sys
 from pathlib import Path
+from typing import IO
+from typing import Any
 
 from docutils.nodes import Node
 from docutils.parsers.rst import directives
@@ -46,6 +49,7 @@ class ExecCodeDirective(CodeBlock):
             )
         command = self.content[0]
         args = command.split()
+        cwd = Path(self.env.srcdir)
 
         paths_to_create: set[Path] = set()
         for file in self.options.get("capture-file", "").split("\n"):
@@ -56,6 +60,27 @@ class ExecCodeDirective(CodeBlock):
                 raise self.warning(f"duplicate file '{file}' in '{self.name}' captured twice "
                                    f"for the command:\n{command}")
             paths_to_create.add(path)
+
+        if stdout := self.options.get("capture-stdout", None):
+            if Path(stdout) in paths_to_create:
+                raise self.warning(f"duplicate file '{stdout}' in '{self.name}' captured twice "
+                                   f"for the command:\n{command}")
+            paths_to_create.add(Path(stdout))
+            stdout_fd = open(cwd / stdout, "wb")  # pylint: disable=consider-using-with
+        else:
+            stdout_fd = None
+        if stderr := self.options.get("capture-stderr", None):
+            if stderr != stdout:
+                if Path(stderr) in paths_to_create:
+                    raise self.warning(f"duplicate file '{stderr}' in '{self.name}' captured twice "
+                                       f"for the command:\n{command}")
+                paths_to_create.add(Path(stderr))
+                # pylint: disable=consider-using-with
+                stderr_fd: IO[Any] | int | None = open(cwd / stderr, "wb")
+            else:
+                stderr_fd = subprocess.STDOUT
+        else:
+            stderr_fd = None
 
         remaining_paths = paths_to_create.copy()
         for i, arg in enumerate(args):
@@ -76,8 +101,6 @@ class ExecCodeDirective(CodeBlock):
             raise self.warning(f"'{self.name}' does not use '{path.name}' "
                                f"in the command:\n{command}")
 
-        import subprocess
-        import sys
         exe_mapping = {
             "python": sys.executable,  # TODO test it (and make it convenient)
             "sh": None,
@@ -93,8 +116,11 @@ class ExecCodeDirective(CodeBlock):
 
         logged_command = " ".join(args)
         logger.info(f"Command launched: {logged_command}")
-        cwd = Path(self.env.srcdir)
-        res = subprocess.run(args, cwd=cwd, executable=exe, check=False)
+        res = subprocess.run(
+            args, cwd=cwd, executable=exe,
+            stdout=stdout_fd, stderr=stderr_fd,
+            check=False,
+        )
 
         if "ignore-exit" not in self.options and res.returncode != 0:
             raise self.warning(f"Command executed by the '{self.name}' directive has failed:\n"
