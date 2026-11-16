@@ -21,6 +21,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     Args.config_parser(parser)
     args = parser.parse_args(argv, Args())
 
+    args.output.parent.mkdir(exist_ok=True)
     with args.output.open("w") as file:
         file.writelines([
             '"Treat", "Quantity", "Description"\n',

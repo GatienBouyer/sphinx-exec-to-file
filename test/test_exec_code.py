@@ -34,6 +34,19 @@ def test_sys_script(app: SphinxTestApp, ref_path: Path) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-code-capture-saved-in-folder",
+)
+def test_capture_saved_in_folder(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test in which the file is saved inside a directory, that needs to be created."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-code-capture-multiple-files",
 )
 def test_capture_multipe_files(app: SphinxTestApp, ref_path: Path) -> None:

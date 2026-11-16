@@ -100,7 +100,7 @@ class ExecCodeDirective(CodeBlock):
             raise self.warning(f"Command executed by the '{self.name}' directive has failed:\n"
                                f"{logged_command}\n")
         for path in paths_to_create:
-            if not (cwd / path.name).exists():
+            if not (cwd / path).exists():
                 raise self.warning(f"Command executed but didn't create the file {path.name}:\n"
                                    f"{logged_command}\n")
 
