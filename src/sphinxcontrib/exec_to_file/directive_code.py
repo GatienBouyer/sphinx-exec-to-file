@@ -47,6 +47,8 @@ class ExecCodeDirective(CodeBlock):
             raise self.warning(
                 f"Content expected for the '{self.name}' directive; {len(self.content)} found"
             )
+        self.env.note_reread()
+
         command = self.content[0]
         args = command.split()
         cwd = Path(self.env.srcdir)
