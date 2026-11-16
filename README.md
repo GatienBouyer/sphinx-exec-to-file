@@ -25,6 +25,7 @@ extensions = [
 
 ## Usage example
 
+### Execute a command
 ```rst
 .. exec:code::
 	:capture-file:
@@ -33,10 +34,10 @@ extensions = [
 	:hide-code:
 
 	prog.exe <file.csv> <data retrieved from api.csv>
+```
 
-.. csv-table::
-	:file: assert/file3.csv
-
+### Execute a code snippet
+```rst
 .. exec:code:: python
 	:capture-stdout:: assets/file1.txt
 	:capture-stderr:: assets/file2.txt
@@ -44,32 +45,104 @@ extensions = [
 	import sys
 	print("hello world")
 	print("hello errors", file=sys.stderr)
+```
 
-.. literalinclude:: assets/file1.txt
-.. literalinclude:: assets/file2.txt
-
+### Execute a file
+```rst
 .. exec:file:: script.py
 	:capture-file: assets/file.png
 	:language: python
+```
 
+### Show the generated table
+```rst
+.. csv-table::
+	:file: assert/file.csv
+```
+
+### Show the generated text
+```rst
+.. literalinclude:: assets/file1.txt
+```
+
+### Show the generated image
+```rst
 .. image:: assets/file.png
 ```
 
+### Show how it was generated
+`exec:code` and `exec:file` inherit from
+[code-block](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-code-block)
+and [literalinclude](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-literalinclude).
+You can display how the file was generated using their directive options.
+If you don't want it in your output, use the option `:hide-code:`.
 
-## Configuration
 
-You can configure how code and files are run in your `conf.py`.
-The default configuration is the following:
+## Extension configuration
+
+You can configure the extension with the following option in your `conf.py`.
+The configuration values shown are the default ones.
+
+### exec_code_runners
 ```python
 exec_code_runners = {
 	"sh": ["sh", "-c"],
 	"python": [sys.executable, "-c"],
 }
+```
+
+### exec_file_runners
+```python
 exec_file_runners = {
 	"sh": ["sh"],
 	"python": [sys.executable],
 }
 ```
+
+### exec_code_file_markers
+```python
+exec_code_file_markers = "<>"
+```
+To use other characters to identify the files to be captured,
+instead of the default `<file.png>`.
+E.g. "{}" would allow to use `{file.png}`.
+
+
+## Directive options
+
+The `exec:code` and `exec-file` directives supports the same options.
+
+They also inherits the options of the
+[code-block](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-code-block)
+and [literalinclude](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-literalinclude) directives.
+
+### capture-file
+The capture-file identifies the list of files to replace in the code/command/file.
+
+The option takes one file path per line.
+They are replace in the executed text where the same file path is written
+surrounded by the markers (as configured by exec_code_file_markers).
+
+### capture-stdout
+Similar to the `capture-file` option, but capture the standard output of the executed text.
+
+### capture-stderr
+Similar to the `capture-file` option, but capture the standard error output of the executed text.
+
+It can have the same value as the `capture-stdout` option, to capture both outputs in the same file.
+The apparition order of the outputs is preserved in the captured file.
+
+### ignore-exit
+By default, the executed code shall return the exit-code status of 0.
+This option disable this check.
+
+### timeout
+By default, the executed code can run indefinitely.
+This option set a timer on the execution of the directive.
+
+### hide-code
+By default, the code/command/file is shown using Sphinx's `code-block` and `literalinclude` directives.
+THis option disable this, so the directive shows nothing in the built documentation.
 
 
 ## Development
