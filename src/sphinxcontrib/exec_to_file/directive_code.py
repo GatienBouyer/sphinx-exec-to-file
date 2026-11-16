@@ -45,7 +45,12 @@ class ExecCodeDirective(CodeBlock):
     def register(cls, app: Sphinx, domain_name: str) -> None:
         """Register the directive in the Sphinx registry."""
         app.add_directive_to_domain(domain_name, cls.name, cls)
-        # app.add_config_value("") TODO
+        app.add_config_value(
+            "exec_code_file_markers",
+            default="<>",
+            rebuild="env",
+            types=[tuple, str],
+        )
 
     def run(self) -> list[Node]:
         """Implementation of the directive.
@@ -97,12 +102,12 @@ class ExecCodeDirective(CodeBlock):
             stderr_fd = None
 
         remaining_paths = paths_to_create.copy()
+        marker_start, marker_end = self.config.exec_code_file_markers
         for i, arg in enumerate(args):
-            # TODO add option to use other characters
-            if not arg.startswith("<") or not arg.endswith(">"):
+            if not arg.startswith(marker_start) or not arg.endswith(marker_end):
                 continue
             for path in paths_to_create:
-                path_as_arg = "<" + path.name + ">"
+                path_as_arg = marker_start + path.name + marker_end
                 if path_as_arg == arg:
                     break
             else:
