@@ -7,7 +7,6 @@ from typing import Any
 
 from docutils.nodes import Node
 from docutils.parsers.rst import directives
-from sphinx.application import Sphinx
 from sphinx.directives.code import CodeBlock
 from sphinx.util.logging import getLogger
 
@@ -30,6 +29,7 @@ class ExecCodeDirective(CodeBlock):
     name = "code"
 
     has_content = True
+    required_arguments = 0
     optional_arguments = 1  # the language
     option_spec = {
         **CodeBlock.option_spec,
@@ -40,17 +40,6 @@ class ExecCodeDirective(CodeBlock):
         "timeout": option_positive_float,
         "hide-code": directives.flag,
     }
-
-    @classmethod
-    def register(cls, app: Sphinx, domain_name: str) -> None:
-        """Register the directive in the Sphinx registry."""
-        app.add_directive_to_domain(domain_name, cls.name, cls)
-        app.add_config_value(
-            "exec_code_file_markers",
-            default="<>",
-            rebuild="env",
-            types=[tuple, str],
-        )
 
     def run(self) -> list[Node]:
         """Implementation of the directive.
@@ -127,7 +116,7 @@ class ExecCodeDirective(CodeBlock):
         if self.arguments:
             language = self.arguments[0]
             if language in exe_mapping:
-                exe = exe_mapping[self.arguments[0]]
+                exe = exe_mapping[language]
             else:
                 raise self.error(f"No executable defined for language '{language}'")
         else:

@@ -107,7 +107,7 @@ def test_show_code(app: SphinxTestApp, ref_path: Path) -> None:
     app.build()
     warnings = app.warning.getvalue()
     assert not warnings
-    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table-with-code")
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table-with-command")
     assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
 
 

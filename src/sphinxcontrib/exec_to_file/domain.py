@@ -14,6 +14,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.util.logging import getLogger
 
 from sphinxcontrib.exec_to_file.directive_code import ExecCodeDirective
+from sphinxcontrib.exec_to_file.directive_file import ExecFileDirective
 
 logger = getLogger("sphinx.exec-to-file")
 
@@ -29,7 +30,14 @@ class ExecToFileDomain(Domain):
     def register(cls, app: Sphinx) -> None:
         """Register the domain and its dependencies in the Sphinx registry."""
         app.add_domain(cls)
-        ExecCodeDirective.register(app, cls.name)
+        app.add_directive_to_domain(cls.name, ExecCodeDirective.name, ExecCodeDirective)
+        app.add_directive_to_domain(cls.name, ExecFileDirective.name, ExecFileDirective)
+        app.add_config_value(
+            "exec_code_file_markers",
+            default="<>",
+            rebuild="env",
+            types=[tuple, str],
+        )
 
     def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
         """Merge domain data of multiple document coming from different subprocesses.
