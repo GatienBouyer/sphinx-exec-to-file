@@ -1,6 +1,6 @@
 [project]
 name = "sphinx-exec-to-file"
-version = "0.0.1"
+version = "1.0.0"
 description = "Sphinx extension to include images and data files created by commands or code"
 keywords = ["sphinx", "sphinx-extension", "generation"]
 authors = [
@@ -14,8 +14,7 @@ dependencies = [
     "sphinx",
 ]
 classifiers = [
-    "Programming Language :: Python :: 3.",
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: Sphinx",
     "Framework :: Sphinx :: Extension",
     "Topic :: Documentation :: Sphinx",
