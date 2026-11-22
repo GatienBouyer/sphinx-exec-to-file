@@ -3,6 +3,8 @@
 
 import sys
 
+# pylint: disable=duplicate-code
+
 sys.stdout.write(
     '"Treat", "Quantity", "Description"\n'
     '"Albatross", 2.99, "On a stick!"\n'

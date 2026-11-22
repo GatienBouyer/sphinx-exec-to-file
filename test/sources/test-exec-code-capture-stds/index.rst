@@ -3,7 +3,7 @@
     :capture-stderr: data.csv
     :hide-code:
 
-    local_prog.py <data.csv>
+    local_prog.py
 
 .. csv-table:: Frozen Delights!
     :widths: 15,10,30

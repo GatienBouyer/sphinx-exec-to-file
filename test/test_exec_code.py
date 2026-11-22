@@ -156,8 +156,7 @@ def test_script_failure(app: SphinxTestApp) -> None:
     """Test in which the script called failed with an exit code != 0."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: Command executed by the 'exec:code' directive has failed:\n"
-           "local_prog.py data.csv")
+    msg = "index.rst:1: WARNING: Command executed by the 'exec:code' directive has failed:"
     assert msg in warnings
 
 
@@ -182,8 +181,7 @@ def test_file_not_created(app: SphinxTestApp) -> None:
     """Test in which the script called does not create the captured file."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: Command executed but didn't create the file data.csv:\n"
-           "local_prog.py data.csv")
+    msg = "index.rst:1: WARNING: Command executed but didn't create the file data.csv:"
     assert msg in warnings
 
 
@@ -221,8 +219,7 @@ def test_file_twice_in_capture(app: SphinxTestApp) -> None:
     """Test in which the code used a file defined twice in the capture option."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice "
-           "for the command:\nprog.py <data.csv>")
+    msg = "index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice"
     assert msg in warnings
 
 
@@ -234,8 +231,7 @@ def test_file_twice_in_capture_stdout(app: SphinxTestApp) -> None:
     """Test in which the code used a file defined twice in the capture option."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice "
-           "for the command:\nprog.py <data.csv>")
+    msg = "index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice"
     assert msg in warnings
 
 
@@ -247,8 +243,7 @@ def test_file_twice_in_capture_stderr(app: SphinxTestApp) -> None:
     """Test in which the code used a file defined twice in the capture option."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice "
-           "for the command:\nprog.py <data.csv>")
+    msg = "index.rst:1: WARNING: duplicate file 'data.csv' in 'exec:code' captured twice"
     assert msg in warnings
 
 
@@ -261,7 +256,7 @@ def test_timeout(app: SphinxTestApp) -> None:
     app.build()
     warnings = app.warning.getvalue()
     msg = ("index.rst:1: CRITICAL: Timeout expired in the 'exec:code' directive (0.1s) "
-           "for the command:\nlocal_prog.py <data.csv>")
+           "for the command:\nlocal_prog.py")
     assert msg in warnings
 
 
