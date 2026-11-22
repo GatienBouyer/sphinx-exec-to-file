@@ -36,6 +36,19 @@ def test_language_python(app: SphinxTestApp, ref_path: Path) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-file-config-runners",
+)
+def test_language_custom(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test the exec_file_runners extension configuration option."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-file-no-file",
 )
 def test_no_code(app: SphinxTestApp) -> None:
