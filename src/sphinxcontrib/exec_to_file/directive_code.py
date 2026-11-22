@@ -73,11 +73,8 @@ class ExecCodeDirective(AbstractExec, CodeBlock):
         - Build the command
         - Run the command and check the output
         """
-        if len(self.content) != 1:
-            raise self.warning(
-                f"Content expected for the '{self.name}' directive; {len(self.content)} found"
-            )
-        command = self.content[0]
+        self.assert_has_content()
+        command = "\n".join(self.content)
 
         captures = self.get_captures()
         args = self.make_replacements(captures.paths_to_replace, command)

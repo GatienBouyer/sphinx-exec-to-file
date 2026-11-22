@@ -34,6 +34,17 @@ def test_sys_script(app: SphinxTestApp, ref_path: Path) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-code-multiline-script",
+)
+def test_multiline_script(app: SphinxTestApp) -> None:
+    """Test to exec a script that written on multiple lines."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-code-capture-saved-in-folder",
 )
 def test_capture_saved_in_folder(app: SphinxTestApp, ref_path: Path) -> None:
@@ -49,7 +60,7 @@ def test_capture_saved_in_folder(app: SphinxTestApp, ref_path: Path) -> None:
     buildername="text",
     testroot="exec-code-capture-multiple-files",
 )
-def test_capture_multipe_files(app: SphinxTestApp, ref_path: Path) -> None:
+def test_capture_multiple_files(app: SphinxTestApp, ref_path: Path) -> None:
     """Test in which the script called generated multiple files."""
     app.build()
     warnings = app.warning.getvalue()
@@ -144,7 +155,7 @@ def test_no_code(app: SphinxTestApp) -> None:
     """Test in which the code is missing form the directive content."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = "index.rst:1: WARNING: Content expected for the 'exec:code' directive; 0 found"
+    msg = "index.rst:1: ERROR: Content block expected for the \"exec:code\" directive; none found"
     assert msg in warnings
 
 
