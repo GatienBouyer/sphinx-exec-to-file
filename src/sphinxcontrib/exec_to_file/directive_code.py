@@ -1,5 +1,6 @@
 """Define the `.. exec:code::` directive."""
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 
 from docutils.nodes import Node
@@ -23,46 +24,51 @@ class ExecCodeDirective(AbstractExec, CodeBlock):
         **AbstractExec.option_spec,
     }
 
-    def make_replacements(self, paths: set[Path], command: str) -> list[str]:
+    def make_replacements(self, paths: set[Path], lines: Iterable[str]) -> str:
         """Replace the marked paths in the command with the actual file paths.
         Return the args to execute the command with the replaced path."""
-        args = command.split()
         marker_start, marker_end = self.config.exec_code_file_markers
         remaining = paths.copy()
-        for i, arg in enumerate(args):
-            if not arg.startswith(marker_start) or not arg.endswith(marker_end):
-                continue
-            for path in paths:
-                path_as_arg = marker_start + path.name + marker_end
-                if path_as_arg == arg:
-                    break
-            else:
-                raise self.warning(f"'{self.name}' does not define the capture of '{arg}' "
-                                   f"for the command:\n{command}")
-            remaining.remove(path)
-            args[i] = path.as_posix()
+        global_args = []
+        command = "\n".join(lines)  # FIXME avoid reading twice the iterable (Iterable != Container)
+        for line in lines:
+            args = line.split()
+            for i, arg in enumerate(args):
+                if not arg.startswith(marker_start) or not arg.endswith(marker_end):
+                    continue
+                for path in paths:
+                    path_as_arg = marker_start + path.name + marker_end
+                    if path_as_arg == arg:
+                        break
+                else:
+                    raise self.warning(f"'{self.name}' does not define the capture of '{arg}' "
+                                       f"for the command:\n{command}")
+                remaining.remove(path)
+                args[i] = path.as_posix()
+            global_args.append(" ".join(args))
 
         for path in remaining:
             raise self.warning(f"'{self.name}' does not use '{path.name}' "
                                f"in the command:\n{command}")
-        return args
+        return "\n".join(global_args)
 
-    def build_command(self, args: list[str]) -> tuple[str | None, list[str]]:
+    def build_command(self, args: str) -> tuple[str | None, list[str]]:
         """Build the command to be executed using the mapping option."""
         exe_mapping = {
-            "python": sys.executable,  # TODO test it (and make it convenient)
-            "sh": None,
+            "python": [sys.executable, "-c"],
+            "sh": ["sh", "-c"],
         }
         if self.arguments:
             language = self.arguments[0]
-            if language in exe_mapping:
-                exe = exe_mapping[language]
-            else:
-                raise self.error(f"No executable defined for language '{language}'")
         else:
-            exe = None
+            language = "sh"
 
-        return exe, args
+        if language in exe_mapping:
+            runner = exe_mapping[language]
+        else:
+            raise self.error(f"No executable defined for language '{language}'")
+
+        return None, runner + [args]
 
     def run(self) -> list[Node]:
         """Implementation of the directive.
@@ -74,9 +80,9 @@ class ExecCodeDirective(AbstractExec, CodeBlock):
         - Run the command and check the output
         """
         self.assert_has_content()
-        command = "\n".join(self.content)
+        script_lines = self.content
 
         captures = self.get_captures()
-        args = self.make_replacements(captures.paths_to_replace, command)
-        exe, args = self.build_command(args)
+        lines = self.make_replacements(captures.paths_to_replace, script_lines)
+        exe, args = self.build_command(lines)
         return list(self.exec(exe, args, captures))

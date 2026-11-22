@@ -1,0 +1,15 @@
+Try the code below:
+
+   import sys
+   print("hello world")
+   print("hello errors", file=sys.stderr)
+
+It shall print the following text:
+
+   hello world
+
+And the following text in the standard error output stream:
+
+   hello errors
+
+Pretty isn't it?

@@ -41,6 +41,5 @@ def test_timeout(app: SphinxTestApp) -> None:
     """Test in which the code doesn't finished and reach the defined timeout."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: CRITICAL: Timeout expired in the 'exec:code' directive (0.1s) "
-           "for the command:\nlocal_prog.py")
+    msg = "index.rst:1: CRITICAL: Timeout expired in the 'exec:code' directive (0.1s)"
     assert msg in warnings

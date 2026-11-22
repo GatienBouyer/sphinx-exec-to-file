@@ -47,6 +47,19 @@ def test_multiline_script(app: SphinxTestApp) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-code-lang-python",
+)
+def test_language_python(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test to exec python code snippet."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "python-prints")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-code-no-code",
 )
 def test_no_code(app: SphinxTestApp) -> None:

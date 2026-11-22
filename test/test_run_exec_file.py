@@ -23,6 +23,19 @@ def test_local_script(app: SphinxTestApp, ref_path: Path) -> None:
 
 @pytest.mark.sphinx(
     buildername="text",
+    testroot="exec-file-lang-python",
+)
+def test_language_python(app: SphinxTestApp, ref_path: Path) -> None:
+    """Test to exec a python script that is next to the conf.py."""
+    app.build()
+    warnings = app.warning.getvalue()
+    assert not warnings
+    diff = dircmp(output := app.outdir, ref := ref_path / "csv-table")
+    assert not (diff.diff_files or diff.left_only or diff.right_only), f"{output} != {ref}"
+
+
+@pytest.mark.sphinx(
+    buildername="text",
     testroot="exec-file-no-file",
 )
 def test_no_code(app: SphinxTestApp) -> None:

@@ -47,7 +47,7 @@ class ExecFileDirective(AbstractExec, LiteralInclude):
     def build_command(self, tmpf: IO[str]) -> tuple[str | None, list[str]]:
         """Build the command to be executed using the mapping option."""
         exe_mapping = {
-            "python": [sys.executable],  # TODO test it (and make it convenient)
+            "python": [sys.executable],
             "sh": ["/bin/sh"],
         }
         language = self.options.get("language", "sh")

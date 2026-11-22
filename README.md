@@ -67,8 +67,8 @@ or be in the Sphinx build directory, where the command is executed.
 ### Execute a code snippet
 ```rst
 .. exec:code:: python
-	:capture-stdout:: assets/file1.txt
-	:capture-stderr:: assets/file2.txt
+	:capture-stdout: assets/file1.txt
+	:capture-stderr: assets/file2.txt
 
 	import sys
 	print("hello world")
