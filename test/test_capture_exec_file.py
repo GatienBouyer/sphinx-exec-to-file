@@ -68,5 +68,5 @@ def test_file_not_in_code(app: SphinxTestApp) -> None:
     """Test in which the code does not use a captured file."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = "index.rst:1: WARNING: 'exec:file' does not use 'data.csv' in the file:"
+    msg = "index.rst:1: WARNING: 'exec:file' does not use 'data.csv'"
     assert msg in warnings

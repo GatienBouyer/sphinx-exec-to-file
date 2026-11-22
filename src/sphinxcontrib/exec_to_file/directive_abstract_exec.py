@@ -1,6 +1,7 @@
 """Define the common directive options and associated code to be used in 'exec' directives."""
 import subprocess
 from abc import ABC
+from collections.abc import Iterable
 from collections.abc import Sequence
 from pathlib import Path
 from typing import IO
@@ -98,6 +99,22 @@ class AbstractExec(SphinxDirective, ABC):
             stdout_fd=stdout_fd,
             stderr_fd=stderr_fd,
         )
+
+    def make_replacements(self, paths: set[Path], srcf: Iterable[str]) -> Iterable[str]:
+        """Copy and replace the marked paths by the actual file paths
+        in the source file to the temporary file."""
+        marker_start, marker_end = self.config.exec_code_file_markers
+        remaining = paths.copy()
+        for line in srcf:
+            for path in paths:
+                path_as_arg = marker_start + path.name + marker_end
+                if path_as_arg in line:
+                    remaining.discard(path)
+                    line = line.replace(path_as_arg, path.as_posix())
+            yield line
+
+        for path in remaining:
+            raise self.warning(f"'{self.name}' does not use '{path.name}'")
 
     def exec(self, exe: str | None, args: list[str], captures: Capture) -> Sequence[Node]:
         """Execute the command composed of the given args with the specifiede executable.

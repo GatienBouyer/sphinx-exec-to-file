@@ -1,7 +1,6 @@
 """Define the `.. exec:code::` directive."""
 import sys
 from collections.abc import Iterable
-from pathlib import Path
 
 from docutils.nodes import Node
 from sphinx.directives.code import CodeBlock
@@ -24,35 +23,7 @@ class ExecCodeDirective(AbstractExec, CodeBlock):
         **AbstractExec.option_spec,
     }
 
-    def make_replacements(self, paths: set[Path], lines: Iterable[str]) -> str:
-        """Replace the marked paths in the command with the actual file paths.
-        Return the args to execute the command with the replaced path."""
-        marker_start, marker_end = self.config.exec_code_file_markers
-        remaining = paths.copy()
-        global_args = []
-        command = "\n".join(lines)  # FIXME avoid reading twice the iterable (Iterable != Container)
-        for line in lines:
-            args = line.split()
-            for i, arg in enumerate(args):
-                if not arg.startswith(marker_start) or not arg.endswith(marker_end):
-                    continue
-                for path in paths:
-                    path_as_arg = marker_start + path.name + marker_end
-                    if path_as_arg == arg:
-                        break
-                else:
-                    raise self.warning(f"'{self.name}' does not define the capture of '{arg}' "
-                                       f"for the command:\n{command}")
-                remaining.remove(path)
-                args[i] = path.as_posix()
-            global_args.append(" ".join(args))
-
-        for path in remaining:
-            raise self.warning(f"'{self.name}' does not use '{path.name}' "
-                               f"in the command:\n{command}")
-        return "\n".join(global_args)
-
-    def build_command(self, args: str) -> tuple[str | None, list[str]]:
+    def build_command(self, lines: Iterable[str]) -> tuple[str | None, list[str]]:
         """Build the command to be executed using the mapping option."""
         exe_mapping = {
             "python": [sys.executable, "-c"],
@@ -68,7 +39,7 @@ class ExecCodeDirective(AbstractExec, CodeBlock):
         else:
             raise self.error(f"No executable defined for language '{language}'")
 
-        return None, runner + [args]
+        return None, runner + ["\n".join(lines)]
 
     def run(self) -> list[Node]:
         """Implementation of the directive.

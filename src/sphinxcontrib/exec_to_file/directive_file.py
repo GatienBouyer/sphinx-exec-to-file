@@ -1,7 +1,6 @@
 """Define the `.. exec:file::` directive."""
 import sys
 import tempfile
-from pathlib import Path
 from typing import IO
 
 from docutils.nodes import Node
@@ -24,25 +23,6 @@ class ExecFileDirective(AbstractExec, LiteralInclude):
         **LiteralInclude.option_spec,
         **AbstractExec.option_spec,
     }
-
-    def make_replacements(self, paths: set[Path], srcf: IO[str], tmpf: IO[str]) -> None:
-        """Copy and replace the marked paths by the actual file paths
-        in the source file to the temporary file."""
-        marker_start, marker_end = self.config.exec_code_file_markers
-        remaining = paths.copy()
-        for line in srcf:
-            for path in paths:
-                path_as_arg = marker_start + path.name + marker_end
-                if path_as_arg in line:
-                    remaining.discard(path)
-                    line = line.replace(path_as_arg, path.as_posix())
-            tmpf.write(line)
-
-        for path in remaining:
-            raise self.warning(f"'{self.name}' does not use '{path.name}' "
-                               f"in the file:\n{srcf.name}")
-
-        tmpf.flush()
 
     def build_command(self, tmpf: IO[str]) -> tuple[str | None, list[str]]:
         """Build the command to be executed using the mapping option."""
@@ -75,6 +55,8 @@ class ExecFileDirective(AbstractExec, LiteralInclude):
             open(file_to_exec, "r", encoding="utf-8") as srcf,
             tempfile.NamedTemporaryFile("w", encoding="utf-8") as tmpf,
         ):
-            self.make_replacements(captures.paths_to_replace, srcf, tmpf)
+            for line in self.make_replacements(captures.paths_to_replace, srcf):
+                tmpf.write(line)
+            tmpf.flush()
             exe, args = self.build_command(tmpf)
             return list(self.exec(exe, args, captures))

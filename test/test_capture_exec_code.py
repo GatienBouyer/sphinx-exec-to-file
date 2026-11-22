@@ -94,21 +94,7 @@ def test_file_not_in_code(app: SphinxTestApp) -> None:
     """Test in which the code does not use a captured file."""
     app.build()
     warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: 'exec:code' does not use 'data.csv' in the command:\n"
-           "prog.py --option")
-    assert msg in warnings
-
-
-@pytest.mark.sphinx(
-    buildername="text",
-    testroot="exec-code-file-not-in-capture",
-)
-def test_file_not_in_capture(app: SphinxTestApp) -> None:
-    """Test in which the code used a file not defined in captures."""
-    app.build()
-    warnings = app.warning.getvalue()
-    msg = ("index.rst:1: WARNING: 'exec:code' does not define the capture of '<data.csv>' "
-           "for the command:\nprog.py <data.csv>")
+    msg = "index.rst:1: WARNING: 'exec:code' does not use 'data.csv'"
     assert msg in warnings
 
 
