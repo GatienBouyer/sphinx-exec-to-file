@@ -75,12 +75,13 @@ class AbstractExec(SphinxDirective, ABC):
 
         paths_to_replace = paths_to_create.copy()
 
-        # pylint: disable=consider-using-with
+        # pylint: disable=consider-using-with # subprocess closes them by default, see close_fd
         if stdout := self.options.get("capture-stdout", None):
             if (stdout_path := cwd / stdout) in paths_to_create:
                 raise self.warning(f"duplicate file '{stdout}' in '{self.name}' captured twice")
             paths_to_create.add(stdout_path)
-            stdout_fd = open(cwd / stdout, "wb")
+            stdout_path.parent.mkdir(parents=True, exist_ok=True)
+            stdout_fd = open(stdout_path, "wb")
         else:
             stdout_fd = None
         if stderr := self.options.get("capture-stderr", None):
@@ -88,7 +89,8 @@ class AbstractExec(SphinxDirective, ABC):
                 if (stderr_path := cwd / stderr) in paths_to_create:
                     raise self.warning(f"duplicate file '{stderr}' in '{self.name}' captured twice")
                 paths_to_create.add(stderr_path)
-                stderr_fd: StdIoFd = open(cwd / stderr, "wb")
+                stderr_path.parent.mkdir(parents=True, exist_ok=True)
+                stderr_fd: StdIoFd = open(stderr_path, "wb")
             else:
                 stderr_fd = subprocess.STDOUT
         else:
