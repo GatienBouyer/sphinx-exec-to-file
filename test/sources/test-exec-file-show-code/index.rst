@@ -1,4 +1,5 @@
 .. exec:file:: local_prog.sh
+    :language: sh
     :capture-file:
         data.csv
     :caption: The following code was used to retrieved the data.
