@@ -1,7 +1,4 @@
 """Define the `.. exec:code::` directive."""
-import sys
-from collections.abc import Iterable
-
 from docutils.nodes import Node
 from sphinx.directives.code import CodeBlock
 from sphinx.util.logging import getLogger
@@ -23,24 +20,6 @@ class ExecCodeDirective(AbstractExec, CodeBlock):
         **AbstractExec.option_spec,
     }
 
-    def build_command(self, lines: Iterable[str]) -> tuple[str | None, list[str]]:
-        """Build the command to be executed using the mapping option."""
-        exe_mapping = {
-            "python": [sys.executable, "-c"],
-            "sh": ["sh", "-c"],
-        }
-        if self.arguments:
-            language = self.arguments[0]
-        else:
-            language = "sh"
-
-        if language in exe_mapping:
-            runner = exe_mapping[language]
-        else:
-            raise self.error(f"No executable defined for language '{language}'")
-
-        return None, runner + ["\n".join(lines)]
-
     def run(self) -> list[Node]:
         """Implementation of the directive.
 
@@ -52,8 +31,11 @@ class ExecCodeDirective(AbstractExec, CodeBlock):
         """
         self.assert_has_content()
         script_lines = self.content
-
         captures = self.get_captures()
         lines = self.make_replacements(captures.paths_to_replace, script_lines)
-        exe, args = self.build_command(lines)
-        return list(self.exec(exe, args, captures))
+        args = self.build_command(
+            self.config.exec_code_runners,
+            self.arguments[0] if self.arguments else None,
+            ["\n".join(lines)],
+        )
+        return list(self.exec(args, captures))

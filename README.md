@@ -114,16 +114,18 @@ The configuration values shown are the default ones.
 ### exec_code_runners
 ```python
 exec_code_runners = {
-	"sh": ["sh", "-c"],
-	"python": [sys.executable, "-c"],
+    None: ["sh", "-c"],  # the default language
+    "sh": ["sh", "-c"],
+    "python": [executable, "-c"],
 }
 ```
 
 ### exec_file_runners
 ```python
 exec_file_runners = {
-	"sh": ["sh"],
-	"python": [sys.executable],
+    None: ["sh"],  # the default language
+    "sh": ["sh"],
+    "python": [executable],
 }
 ```
 

@@ -1,7 +1,5 @@
 """Define the `.. exec:file::` directive."""
-import sys
 import tempfile
-from typing import IO
 
 from docutils.nodes import Node
 from sphinx.directives.code import LiteralInclude
@@ -24,19 +22,6 @@ class ExecFileDirective(AbstractExec, LiteralInclude):
         **AbstractExec.option_spec,
     }
 
-    def build_command(self, tmpf: IO[str]) -> tuple[str | None, list[str]]:
-        """Build the command to be executed using the mapping option."""
-        exe_mapping = {
-            "python": [sys.executable],
-            "sh": ["/bin/sh"],
-        }
-        language = self.options.get("language", "sh")
-        if language in exe_mapping:
-            exe = exe_mapping[language]
-        else:
-            raise self.error(f"No executable defined for language '{language}'")
-        return None, [*exe, tmpf.name]
-
     def run(self) -> list[Node]:
         """Implementation of the directive.
 
@@ -58,5 +43,10 @@ class ExecFileDirective(AbstractExec, LiteralInclude):
             for line in self.make_replacements(captures.paths_to_replace, srcf):
                 tmpf.write(line)
             tmpf.flush()
-            exe, args = self.build_command(tmpf)
-            return list(self.exec(exe, args, captures))
+
+            args = self.build_command(
+                self.config.exec_file_runners,
+                self.options.get("language"),
+                [tmpf.name],
+            )
+            return list(self.exec(args, captures))

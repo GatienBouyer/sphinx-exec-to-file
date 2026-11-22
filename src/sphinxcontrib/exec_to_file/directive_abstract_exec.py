@@ -2,6 +2,7 @@
 import subprocess
 from abc import ABC
 from collections.abc import Iterable
+from collections.abc import Mapping
 from collections.abc import Sequence
 from pathlib import Path
 from typing import IO
@@ -116,7 +117,17 @@ class AbstractExec(SphinxDirective, ABC):
         for path in remaining:
             raise self.warning(f"'{self.name}' does not use '{path.name}'")
 
-    def exec(self, exe: str | None, args: list[str], captures: Capture) -> Sequence[Node]:
+    def build_command(self, exes: Mapping[str | None, Sequence[str]],
+                      language: str | None, args: Iterable[str]) -> list[str]:
+        """Build the command to be executed using the mapping option."""
+        if language in exes:
+            runner = exes[language]
+        else:
+            raise self.error(f"No executable defined for language '{language}'")
+
+        return [*runner, *args]
+
+    def exec(self, args: list[str], captures: Capture) -> Sequence[Node]:
         """Execute the command composed of the given args with the specifiede executable.
         Capture the stdout/stderr and check that the files are created.
         Return the directive contained nodes."""
@@ -126,7 +137,7 @@ class AbstractExec(SphinxDirective, ABC):
 
         try:
             res = subprocess.run(
-                args, cwd=self.cwd, executable=exe,
+                args, cwd=self.cwd,
                 stdout=captures.stdout_fd, stderr=captures.stderr_fd,
                 check=False, timeout=timeout,
             )

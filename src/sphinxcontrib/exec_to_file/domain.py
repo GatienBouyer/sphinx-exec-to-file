@@ -2,6 +2,7 @@
 Define the Sphinx domain that regroup all the features of the exec-to-file extension.
 """
 from collections.abc import Iterable
+from sys import executable
 from typing import Any
 
 from docutils.nodes import Element
@@ -37,6 +38,26 @@ class ExecToFileDomain(Domain):
             default="<>",
             rebuild="env",
             types=[tuple, str],
+        )
+        app.add_config_value(
+            "exec_code_runners",
+            default={
+                None: ["sh", "-c"],  # the default language
+                "sh": ["sh", "-c"],
+                "python": [executable, "-c"],
+            },
+            rebuild="env",
+            types=[dict],
+        )
+        app.add_config_value(
+            "exec_file_runners",
+            default={
+                None: ["sh"],  # the default language
+                "sh": ["sh"],
+                "python": [executable],
+            },
+            rebuild="env",
+            types=[dict],
         )
 
     def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
